@@ -6,6 +6,26 @@ using System.Threading.Tasks;
 
 namespace SkillAlice.Models
 {
+
+    [Serializable]
+    public class UserModel
+    {
+        public static Dictionary<string, UserModel> List = new Dictionary<string, UserModel>();
+        // Возрастная категория
+        public bool SelectingAge = false;
+        public bool Adult = false;
+        public bool AskAboutAdult = false;        
+        // Выбор фильма
+        public bool SelectingFilm = false;
+        public string SelectingFilmName = "";
+    }
+
+    // Time get for init
+    public class TimeModel
+    {
+        public double unix = 0;
+    }
+
     // Model that we get from alice
     public class GetModel
     {
@@ -22,7 +42,6 @@ namespace SkillAlice.Models
             public string client_id = "";
             //public Dictionary<string, string> interfaces;                          
         }
-
 
         public class Request
         {
@@ -101,7 +120,7 @@ namespace SkillAlice.Models
             public string session_id = "";
             public string skill_id = "";          
             public string user_id = "";
-        }
-        
+        }        
     }
+    
 }

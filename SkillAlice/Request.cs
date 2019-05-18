@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using HtmlAgilityPack;
+using System.Net;
 
 namespace SkillAlice
 {
@@ -34,7 +36,7 @@ namespace SkillAlice
             try
             { // Creating client and send request
                 // Set client vars
-                var myHttpClient = new HttpClient(); // Create HTTP Client
+                var myHttpClient = new HttpClient(); // Create HTTP Client              
                 var response = await myHttpClient.PostAsync(url, data); // HTTP Response
                 var json = await response.Content.ReadAsStringAsync(); // JSON Data
                 try
@@ -44,7 +46,7 @@ namespace SkillAlice
                 }
                 catch (Exception ex)
                 { // Failed to decode data
-                    error(ex.Message); // Show Error
+                    error(ex.Message + "\n=====================\n" + ex.StackTrace); // Show Error
                     return false;
                 }
             }
@@ -55,6 +57,51 @@ namespace SkillAlice
             }
         }
 
+        public static string ParseName(string QueryString)
+        {
+            HtmlDocument htmlDoc = new HtmlDocument();
+            using (WebClient web = new WebClient())
+            {
+                web.Encoding = Encoding.UTF8;
+                htmlDoc.LoadHtml(web.DownloadString($"https://www.kinopoisk.ru/index.php?kp_query=" + QueryString + "&what="));
+            }
+            return (htmlDoc.DocumentNode
+                .SelectSingleNode("//div[contains(@class, 'most_wanted')]//div[contains(@class, 'info')]//p[contains(@class, 'name')]//a").InnerText.Replace("&nbsp;", " "));
+        }
+
+        public static async void GET(string url, OnRequestComplete complete, OnRequestError error)
+        {
+            await GETAsync(url, complete, error);
+        }
+
+        public static async Task<bool> GETAsync(string url, OnRequestComplete complete, OnRequestError error)
+        {
+            try
+            { // Creating client and send request
+                // Set client vars
+                var myHttpClient = new HttpClient(); // Create HTTP Client 
+                myHttpClient.DefaultRequestHeaders.Add("View", "stb3");
+                myHttpClient.DefaultRequestHeaders.Add("X-Auth-Token", Hidden.ServiceToken);
+                var response = await myHttpClient.GetAsync(url); // HTTP Response
+                var json = await response.Content.ReadAsStringAsync(); // JSON Data
+                try
+                {
+                    complete(json); // Show Complete
+                    return true;
+                }
+                catch (Exception ex)
+                { // Failed to decode data
+                    error(ex.Message + ex.StackTrace); // Show Error
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            { // Failed to send request
+                error(ex.Message + "\n=====================\n" + ex.StackTrace); // Show Error
+                return false;
+            }
+            
+        }
 
     }
 }
