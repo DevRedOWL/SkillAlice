@@ -13,7 +13,23 @@ namespace SkillAlice
         public delegate void OnRequestComplete(string data); // Request Complete Callback
         public delegate void OnRequestError(string code); // Request Error Callback
 
-        internal static async Task<bool> Get(string url, FormUrlEncodedContent data, OnRequestComplete complete, OnRequestError error) 
+        public static FormUrlEncodedContent ToHttpContent(KeyValuePair<string, string>[] KVP)
+        {
+            return new FormUrlEncodedContent(KVP); // Serealize request params
+        }
+
+        public static StringContent ToHttpContent(Models.PostModel Obj)
+        {
+            return new StringContent(JsonConvert.SerializeObject(Obj), Encoding.UTF8, "application/json");
+        }
+        
+
+        public static async void POST(string url, HttpContent data, OnRequestComplete complete, OnRequestError error)
+        {
+            await POSTAsync(url, data, complete, error);
+        }
+
+        public static async Task<bool> POSTAsync(string url, HttpContent data, OnRequestComplete complete, OnRequestError error) 
         {
             try
             { // Creating client and send request
@@ -34,7 +50,7 @@ namespace SkillAlice
             }
             catch (Exception ex)
             { // Failed to send request
-                error(ex.Message); // Show Error
+                error(ex.Message+"\n=====================\n"+ex.StackTrace); // Show Error
                 return false;
             }
         }
