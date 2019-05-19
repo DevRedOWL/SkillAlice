@@ -10,7 +10,8 @@ namespace SkillAlice
     class Program
     {
         static void Main(string[] args)
-        {
+        {          
+
             // Initialize
             App.Init();
             Task.Factory.StartNew(() => 
@@ -35,7 +36,7 @@ namespace SkillAlice
             while (true)
             {     
                 App.CheckForUpdates();
-                Thread.Sleep(100);
+                Thread.Sleep(500);
             }
 
             

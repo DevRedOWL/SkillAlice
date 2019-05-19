@@ -65,8 +65,45 @@ namespace SkillAlice
                 web.Encoding = Encoding.UTF8;
                 htmlDoc.LoadHtml(web.DownloadString($"https://www.kinopoisk.ru/index.php?kp_query=" + QueryString + "&what="));
             }
-            return (htmlDoc.DocumentNode
+            try
+            {
+                return (htmlDoc.DocumentNode
                 .SelectSingleNode("//div[contains(@class, 'most_wanted')]//div[contains(@class, 'info')]//p[contains(@class, 'name')]//a").InnerText.Replace("&nbsp;", " "));
+            }
+            catch (Exception)
+            {
+                return "&";
+            }
+        }
+
+        public static async Task<bool> PostImage(string url, OnRequestComplete complete, OnRequestError error)
+        {
+            try
+            { // Creating client and send request
+                var myHttpClient = new HttpClient(); // Create HTTP Client      
+                myHttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                myHttpClient.DefaultRequestHeaders.Add("Authorization", Hidden.YandexToken);
+                var response = await myHttpClient.PostAsync("https://dialogs.yandex.net/api/v1/skills/"+Hidden.YandexSkillId+"/images", 
+                    Request.ToHttpContent(new KeyValuePair<string, string>[]{
+                        new KeyValuePair<string, string>("url", url)   // App token
+                    })); // HTTP Response
+                var json = await response.Content.ReadAsStringAsync(); // JSON Data
+                try
+                {
+                    complete(json); // Show Complete
+                    return true;
+                }
+                catch (Exception ex)
+                { // Failed to decode data
+                    error(ex.Message + "\n=====================\n" + ex.StackTrace); // Show Error
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            { // Failed to send request
+                error(ex.Message + "\n=====================\n" + ex.StackTrace); // Show Error
+                return false;
+            }
         }
 
         public static async void GET(string url, OnRequestComplete complete, OnRequestError error)
@@ -75,7 +112,7 @@ namespace SkillAlice
         }
 
         public static async Task<bool> GETAsync(string url, OnRequestComplete complete, OnRequestError error)
-        {
+        {           
             try
             { // Creating client and send request
                 // Set client vars
