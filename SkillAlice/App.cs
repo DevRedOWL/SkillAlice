@@ -288,6 +288,18 @@ namespace SkillAlice
                 SendAnswer(AnswerModel); // Send answer
             }
 
+            // Роли
+            else if(state.request.command.ToLower().Split(' ')[0].Trim(' ') == "роли" || state.request.command.ToLower().Split(' ')[0].Trim(' ') == "актеры")
+            {
+                string FilmName = "https://www.google.ru/search?q=" + "актеры " + Request.ParseName(state.request.command.ToLower().Replace("роли ", "").Replace("актеры ", ""));
+                AnswerModel.response.tts = AnswerModel.response.text = $"Список актеров для выбранного фильма:";
+                AnswerModel.response.buttons = new Models.PostModel.Response.Buttons[2];
+                Console.WriteLine(FilmName);
+                AnswerModel.response.buttons[0] = new Models.PostModel.Response.Buttons { title = "Просмотр", hide = true, url = FilmName.Replace(' ', '+') };
+                AnswerModel.response.buttons[1] = new Models.PostModel.Response.Buttons { title = "Назад", hide = true };
+                SendAnswer(AnswerModel); // Send answer
+            }
+
             // Если неизвестно, что выбирает юзер
             else
             {

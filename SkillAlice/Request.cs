@@ -93,7 +93,7 @@ namespace SkillAlice
                     complete(json); // Show Complete
                     return true;
                 }
-                catch (Exception ex)
+                catch (Exception ex) // 
                 { // Failed to decode data
                     error(ex.Message + "\n=====================\n" + ex.StackTrace); // Show Error
                     return false;
